@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import static utils.Constants.PlayerConstants.*;
 import utils.LoadSave;
 import main.Game;
+import utils.Constants;
 import static utils.HelpMethods.*;
 
 /**
@@ -25,6 +26,7 @@ public class Player extends Entity {
     private int playerDir = -1;
     private boolean moving = false, attacking = false;
     private boolean left, up, right, down, jump;
+    private boolean dirLeft = false;
     private float playerSpeed = 1f;
     private int[][] lvlData;
     private float xDrawOffset = 21;
@@ -35,8 +37,8 @@ public class Player extends Entity {
     private float fallSpeedAfterCollision = 0.5f;
     private boolean inAir = true;
 
-    public Player(float x, float y, int width, int height) {
-        super(x, y, width, height);
+    public Player(float x, float y) {
+        super(x, y);
         LoadAnimations();
         initHitbox(x, y, (int)(20f), (int)(27f));
     }
@@ -48,13 +50,15 @@ public class Player extends Entity {
     }
 
     public void render(Graphics g, float offsetX, float offsetY) {
-        if (left) {
+        if (dirLeft) {
          g.drawImage(animations[playerAction][aniIndex % animations[playerAction].length], (int) ((hitbox.x - xDrawOffset) * Game.SCALE + offsetX + spriteX * Game.SCALE ) , (int) ((hitbox.y - yDrawOffset) * Game.SCALE + offsetY), -(int) (spriteX * Game.SCALE), (int) (spriteY * Game.SCALE), null);
         } else {
             g.drawImage(animations[playerAction][aniIndex % animations[playerAction].length], (int) ((hitbox.x - xDrawOffset) * Game.SCALE + offsetX), (int) ((hitbox.y - yDrawOffset) * Game.SCALE + offsetY), (int) (spriteX * Game.SCALE), (int) (spriteY * Game.SCALE), null);
         }
         //g.drawImage(animations[playerAction][aniIndex % animations[playerAction].length], (int) ((hitbox.x - xDrawOffset) * Game.SCALE + offsetX), (int) ((hitbox.y - yDrawOffset) * Game.SCALE + offsetY), (int) (spriteX * Game.SCALE), (int) (spriteY * Game.SCALE), null);
-        //drawHitbox(g, offsetX, offsetY);
+        if(Constants.debug){
+            drawHitbox(g, offsetX, offsetY);
+        }
     }
 
     public void setMoving(boolean moving) {
@@ -93,9 +97,11 @@ public class Player extends Entity {
         float xSpeed = 0, ySpeed = 0;
 
         if (left) {
+            dirLeft = true;
             xSpeed -=playerSpeed;
         }
         if (right) {
+            dirLeft = false;
             xSpeed += playerSpeed;
         }
         

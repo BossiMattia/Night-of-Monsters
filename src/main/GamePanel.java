@@ -31,12 +31,13 @@ public class GamePanel extends javax.swing.JPanel {
         addKeyListener(new KeyboardInputs(this));
         addMouseListener(mouseInputs);
         addMouseMotionListener(mouseInputs);
+        setFocusable(true);
     }
 
     
     @Override
     public void paintComponent(Graphics g) {
-        //super.paintComponent(g);
+        super.paintComponent(g);
         game.render(g);
         
     }

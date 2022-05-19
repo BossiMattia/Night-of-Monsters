@@ -4,13 +4,10 @@ import gamestates.Gamestate;
 import gamestates.Menu;
 import gamestates.Playing;
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
+import utils.Constants;
 
 /**
  *
@@ -21,8 +18,8 @@ public class Game implements Runnable {
     private GameWindow gameWindow;
     private GamePanel gamePanel;
     private Thread gameThread;
-    private final int FPS_SET = 120;
-    private final int UPS_SET = 200;
+    private static final int FPS_SET = 120;
+    public static final int UPS_SET = 200;
 
     public static boolean manualFrameAdvancing;
     
@@ -30,27 +27,48 @@ public class Game implements Runnable {
     private Menu menu;
     
     public final static int TILES_DEFAULT_SIZE = 32;
-    public final static float SCALE = 1f;
-    public final static int TILES_IN_WIDTH = 26;
-    public final static int TILES_IN_HEIGHT = 14;
-    public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
-    public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
-    public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
-    public final static int COORD_WIDTH = TILES_DEFAULT_SIZE * TILES_IN_WIDTH;
-    public final static int COORD_HEIGHT = TILES_DEFAULT_SIZE * TILES_IN_HEIGHT;
+    public static float SCALE;
+    public static float TILES_IN_WIDTH = 26;
+    public static float TILES_IN_HEIGHT = 14;
+    public static float TILES_SIZE = TILES_DEFAULT_SIZE * SCALE;
+    public static float GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
+    public static float GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
+    public static float COORD_WIDTH = TILES_DEFAULT_SIZE * TILES_IN_WIDTH;
+    public static float COORD_HEIGHT = TILES_DEFAULT_SIZE * TILES_IN_HEIGHT;
 
-    public Game() {
+    public Game(float scale, boolean fullscreen) {
+        if(fullscreen){
+            Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+            TILES_IN_WIDTH = screen.width/(screen.height/TILES_IN_HEIGHT);
+        }
+        changeScale(scale);
+        
         initClasses();
         System.out.println("Game on!");
         gamePanel = new GamePanel(this);
-        gameWindow = new GameWindow(gamePanel);
+        gameWindow = new GameWindow(gamePanel, fullscreen);
         gamePanel.requestFocus();
         startGameLoop();
     }
-
+    
+    public void changeScale(float scale){
+        SCALE = scale;
+        TILES_SIZE = TILES_DEFAULT_SIZE * SCALE;
+        GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
+        GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
+        COORD_WIDTH = TILES_DEFAULT_SIZE * TILES_IN_WIDTH;
+        COORD_HEIGHT = TILES_DEFAULT_SIZE * TILES_IN_HEIGHT;
+        if(gamePanel != null && gameWindow != null){
+            gamePanel.setPanelSize();
+            gameWindow.repackPanel();  
+        }
+        Constants.updateScaleConsts();
+    }
+    
     private void initClasses() {
         menu=new Menu(this);
         playing=new Playing(this);
+        playing.initLevelManager();
     }
 
     private void startGameLoop() {

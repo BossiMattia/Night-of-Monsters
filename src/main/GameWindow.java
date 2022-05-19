@@ -15,7 +15,7 @@ import javax.swing.JFrame;
 public class GameWindow {
     JFrame jframe;
     
-    public GameWindow(GamePanel gamePanel) {
+    public GameWindow(GamePanel gamePanel,boolean fullscreen) {
         jframe = new JFrame();
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jframe.add(gamePanel);//paint gamePanel on frame
@@ -29,9 +29,23 @@ public class GameWindow {
                 gamePanel.getGame().windowLostFocus();
             }
         });
+        
         jframe.setResizable(false);
-        jframe.pack();//auto-fit gamePanel
+        if(fullscreen){
+            jframe.setUndecorated(true);
+            //jframe.setAlwaysOnTop(true);
+            jframe.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        }else{
+            jframe.pack();//auto-fit gamePanel
+        }
         jframe.setLocationRelativeTo(null);//center on screen
         jframe.setVisible(true);//set visible - always at the end of constructor!
+        
+    }
+    
+    public void repackPanel(){
+        jframe.pack();//auto-fit gamePanel
+        jframe.setLocationRelativeTo(null);//center on screen
+        
     }
 }

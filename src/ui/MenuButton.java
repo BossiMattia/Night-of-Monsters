@@ -4,7 +4,7 @@ import gamestates.Gamestate;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import org.w3c.dom.css.Rect;
+import utils.AudioPlayer;
 import utils.LoadSave;
 import static utils.Constants.UI.Buttons.*;
 
@@ -61,6 +61,7 @@ public class MenuButton {
 
     public void setMousePressed(Boolean mousePressed) {
         this.mousePressed = mousePressed;
+        
     }
 
     private void initBounds() {
@@ -69,6 +70,7 @@ public class MenuButton {
     
     public void applyGamestate(){
         Gamestate.state=state;
+        AudioPlayer.playEffect(AudioPlayer.Effects.CLICK);
     }
     
     public void resetBools(){
@@ -79,5 +81,11 @@ public class MenuButton {
     public Rectangle getBounds() {
         return bounds;
     }
+
+    public Gamestate getGamestate() {
+        return state;
+    }
+    
+    
     
 }

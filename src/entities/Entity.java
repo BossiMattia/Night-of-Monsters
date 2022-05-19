@@ -1,31 +1,32 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package entities;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
+import main.Game;
 import static main.Game.*;
 
-/**
+/** Abstract base entity class
  *
- * @author matti
+ * @author BossiMattia
  */
 public abstract class Entity {
     
     protected float x, y;
-    //protected int width, height;
     protected Rectangle2D.Float hitbox;
 
-    public Entity(float x, float y/*, int width, int height*/) {
+    public Entity(float x, float y) {
         this.x = x;
         this.y = y;
-        //this.width = width;
-        //this.height = height;
     }
 
+
+    public void update() {
+     if(hitbox.y < -3*Game.TILES_DEFAULT_SIZE || hitbox.y > Game.COORD_HEIGHT+3*Game.TILES_DEFAULT_SIZE){
+            die();
+        }
+    }
+    
     protected void drawHitbox(Graphics g, float offsetX, float offsetY ){
         //FOR DEBUGGING
         g.setColor(Color.red);
@@ -35,7 +36,6 @@ public abstract class Entity {
     protected void initHitbox(float x, float y, int width, int height) {
         hitbox = new Rectangle2D.Float(x, y, width, height);
     }
-    
     
 //    protected void updateHitbox(){
 //        hitbox.x = (int)x;
@@ -54,6 +54,7 @@ public abstract class Entity {
         return hitbox;
     }
     
-    
+    public void die(){
+        
+    }
 }
-  

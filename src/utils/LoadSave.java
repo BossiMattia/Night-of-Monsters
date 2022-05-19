@@ -4,9 +4,14 @@
  */
 package utils;
 
+import entities.Boss;
+import entities.Sniper;
 import entities.Enemy;
+import entities.EnemyManager;
 import entities.FollowEnemy;
 import entities.PassiveEnemy;
+import entities.ProjectileManager;
+import gamestates.Playing;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -24,15 +29,20 @@ import main.GamePanel;
  */
 public class LoadSave {
     public static final String PLAYER_ATLAS = "player_sprites.png";
-    public static final String LEVEL_ATLAS = Constants.debug?"outside_sprites_grid.png":"outside_sprites.png";
-    public static final String[] LEVELS_DATA = {"level_one_data.png"};
+    public static final String LEVEL_ATLAS = Constants.DEBUG?"outside_sprites_grid.png":"outside_sprites_city.png";
+    public static final String[] LEVELS_DATA = {"level_one_data.png", "level_two_data.png", "level_three_data.png", "level_boss_data.png"};
+    public static final String[] LEVELS_BACKGROUND = {"city_background.png","city_background.png","city_background.png", "city_background.png"};
     public static final int LEVELS_NUMBER = LEVELS_DATA.length;
     public static final String MENU_BUTTONS = "button_atlas.png";
     public static final String MENU_BACKGROUND = "menu_background.png";
     public static final String PAUSE_BACKGROUND = "pause_menu.png";
     public static final String SOUND_BUTTONS = "sound_button.png";
     public static final String CRABBY_ATLAS = "crabby_sprite.png";
+    public static final String SNIPER_ATLAS = "zombie_atlas.png";
+    public static final String BOSS_ATLAS = "boss_sprites.png";
+
     public static final String VOLUME_BUTTONS = "volume_buttons.png";
+    public static final String DEATH_OVERLAY = "death_overlay.png";
 
     public static final String URM_BUTTONS = "urm_buttons.png";
 
@@ -87,10 +97,16 @@ public class LoadSave {
                 Enemy en;
                 switch(value){
                     case 1 -> {
-                        en = new PassiveEnemy(i*Game.TILES_SIZE, j*Game.TILES_SIZE);
+                        en = new PassiveEnemy(i*Game.TILES_DEFAULT_SIZE, j*Game.TILES_DEFAULT_SIZE);
                     }
                     case 2 -> {
-                        en = new FollowEnemy(i*Game.TILES_SIZE, j*Game.TILES_SIZE);
+                        en = new FollowEnemy(i*Game.TILES_DEFAULT_SIZE, j*Game.TILES_DEFAULT_SIZE);
+                    }
+                    case 3 -> {
+                        en = new Sniper(i*Game.TILES_DEFAULT_SIZE, j*Game.TILES_DEFAULT_SIZE);
+                    }
+                    case 4 -> {
+                        en = new Boss(i*Game.TILES_DEFAULT_SIZE, j*Game.TILES_DEFAULT_SIZE);
                     }
                     default ->{
                         continue;
@@ -102,4 +118,10 @@ public class LoadSave {
         return enemies;
     }
     
+    
+    public static levels.Level getLevel(int levelN, Playing playing){
+        EnemyManager em = new EnemyManager(playing);
+        em.loadEnemies(GetLevelEnemies(levelN));
+        return new levels.Level(GetLevelData(levelN),em , new ProjectileManager(playing),playing.getPlayer(), GetSpriteAtlas(LEVELS_BACKGROUND[levelN]));
+    }
 }

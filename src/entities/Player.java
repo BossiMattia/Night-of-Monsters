@@ -16,7 +16,7 @@ import utils.Constants;
 import static utils.HelpMethods.*;
 
 /**
- *
+ * Player class, controlled via keyboard
  * @author matti
  */
 public class Player extends Entity {

@@ -85,7 +85,7 @@ public class AudioPlayer {
     /** enum Effects list*/
     public static enum Effects{
         /**effects enums*/
-        FIRE, JUMP, DAMAGE, ENEMY_DEAD, CLICK, PAUSE, DEATH, GAME_OVER;
+        FIRE, JUMP, DAMAGE, ENEMY_DEAD, CLICK, PAUSE, DEATH, GAME_OVER, WIN_GAME;
     }
     
     /** enum Musics list*/
@@ -114,6 +114,8 @@ public class AudioPlayer {
             case DEATH:
             case GAME_OVER:
                 return "death.wav";
+            case WIN_GAME:
+                return "win_effect.wav";
             default:
                 return null;
         }

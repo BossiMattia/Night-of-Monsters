@@ -8,28 +8,34 @@ import static gamestates.Playing.flyingAmmos;
 import static gamestates.Playing.levelManager;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import main.Game;
 import utils.Constants;
 import static utils.Constants.EnemyConstants.IDLE;
 import static utils.Constants.PlayerConstants.RUNNING;
 import utils.LoadSave;
+import gamestates.Playing;
 
-/**
- *
+/** enemy boss, flies, 20hp
  * @author matti
  */
 public class Boss extends Enemy {
     
+    /** gun direction randomness, in radians */
     private static final double GUN_RANDOMNESS = Math.PI/3;//in radians
+    /** frames between shots */
     private static final int FIRE_SPEED = 50;
+    /** frame for next shot */
     private int fireTick = 100;
     
+    /** barrel to fire next*/
     private int barrel = 0;
+    /** barrels offsets */
     private final static float[] xShootOffset = {21.5f, 54f}, yShootOffset = {117.5f, 117.5f};
     
 
-
+    /** constructor with spawn coordinates
+    * @param x coordinate x
+    * @param y coordinate y */
     public Boss(float x, float y) {
         super(x, y);
         TYPE = Constants.EnemyConstants.BOSS;
@@ -40,6 +46,7 @@ public class Boss extends Enemy {
         resetMovements();
     }
     
+    /** initialize sprite "constants" */
     private void initSprite() {
         spriteX = Constants.EnemyConstants.CRABBY_WIDTH_DEFAULT;
         spriteY = Constants.EnemyConstants.CRABBY_HEIGHT_DEFAULT;
@@ -47,6 +54,7 @@ public class Boss extends Enemy {
         yDrawOffset = 26;
     }
     
+    /**Initialize enemy options */
     private void settings() {
         MAX_LIVES = 20;
         resetLives();
@@ -59,12 +67,12 @@ public class Boss extends Enemy {
         aniSpeed = 50;
     }
     
-    /** Render boss on g
+    /** Render boss on g if it is in the screen horizontal coordinates
      * 
-     * @param g graphics
-     * @param offsetX render offset x
-     * @param offsetY render offset y
-     */
+     * @param g Graphics object to draw on
+     * @param offsetX horizontal offset of screen
+     * @param offsetY vertical offset of screen
+    */
     @Override
     public void render(Graphics g, float offsetX, float offsetY) {
         if ((hitbox.x - xDrawOffset + spriteX) * Game.SCALE > -(offsetX) && (hitbox.x - xDrawOffset) * Game.SCALE < Game.GAME_WIDTH - (offsetX)) {
@@ -87,6 +95,7 @@ public class Boss extends Enemy {
         }
     }
     
+    /** update boss, calculate positions */
     @Override
     public void update() {
         super.update();
@@ -99,6 +108,7 @@ public class Boss extends Enemy {
         }
     }
 
+    /** set action */
     @Override
     protected void updateAction() {
         action = IDLE;
@@ -108,8 +118,6 @@ public class Boss extends Enemy {
     
     /** Fires a projectile */
     public void fire() {
-        //for(int i = 0; i< xShootOffset.length; i++)
-        
         Projectile flyingAmmo = new Projectile(getHitbox().x + xShootOffset[barrel], getHitbox().y + yShootOffset[barrel],
             (float) (Math.atan2((getHitbox().x + xShootOffset[barrel]) - (p.getHitbox().x+p.getHitbox().width/2), (getHitbox().y +  yShootOffset[barrel]) - (p.getHitbox().y + p.getHitbox().height / 2)) + Math.PI / 2 - GUN_RANDOMNESS / 2 + Math.random() * GUN_RANDOMNESS));
         flyingAmmo.loadLvlData(levelManager.getLoadedLevel().getLvlData());
@@ -118,11 +126,9 @@ public class Boss extends Enemy {
         fireTick = FIRE_SPEED;
     }
     
-    
-    private static final float BAR_BORDER = 1.5f;
-    private static final float BAR_HEIGHT = 3;
-    private static final float BAR_DISTANCE = 15;
-
+    /** bar draw constants */
+    private static final float BAR_BORDER = 1.5f, BAR_HEIGHT = 3, BAR_DISTANCE = 15;
+    /** draw health bar */
     private void drawHealthBar(Graphics g, float offsetX, float offsetY) {
         Color c = g.getColor();
         g.setColor(Color.BLACK);
@@ -134,6 +140,7 @@ public class Boss extends Enemy {
         g.setColor(c);
     }
     
+    /** set direction to player position */
     @Override
     protected void prePosUpdate(Player p) {
         resetMovements();
@@ -145,4 +152,12 @@ public class Boss extends Enemy {
             }
         }
     }
+    
+    
+    @Override
+    public void die() {
+        super.die(); 
+        Playing.gameWin();
+    }
+    
 }

@@ -11,12 +11,16 @@ import static utils.Constants.EnemyConstants.*;
 import static utils.Constants.PlayerConstants.RUNNING;
 import utils.LoadSave;
 
-/**
- *
+/** enemy, bounces on walls
  * @author Bossi_Mattia
  */
 public class PassiveEnemy extends Enemy {
-
+    
+    /**
+     * constructor, create enemy
+     * @param x coordinate x
+     * @param y coordinate y
+     */
     public PassiveEnemy(float x, float y) {
         super(x, y);
         TYPE = Constants.EnemyConstants.CRABBY;
@@ -27,20 +31,23 @@ public class PassiveEnemy extends Enemy {
         resetMovements();
     }
 
+    /** reset movements override */
     @Override
     protected void resetMovements() {
         right = false;
         left = true;
         jump = false;
     }
-
+    
+    /** initialize sprite "constants" */
     private void initSprite() {
         spriteX = Constants.EnemyConstants.CRABBY_WIDTH_DEFAULT;
         spriteY = Constants.EnemyConstants.CRABBY_HEIGHT_DEFAULT;
         xDrawOffset = 26;
         yDrawOffset = 10;
     }
-
+    
+    /**Initialize enemy options */
     private void settings() {
         action = RUNNING;
         movSpeed = 0.5f;
@@ -48,7 +55,7 @@ public class PassiveEnemy extends Enemy {
         jumpSpeed = -2.5f;
     }
 
-
+    /** On wall touch event, change walk direction */
     @Override
     protected void onWallTouch() {
         left = !left;

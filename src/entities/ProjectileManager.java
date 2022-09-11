@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package entities;
 
 import gamestates.Playing;
@@ -52,14 +49,20 @@ public class ProjectileManager {
         enemyProjectiles.add(proj);
     }
 
-    public synchronized void updateAll(Player player) {
+    public synchronized void updateAll() {
         LinkedList<Projectile> projects = (LinkedList< Projectile>) projectiles.clone();
         for (Projectile el : projects) {
-            el.update(player);
+            el.update();
         }
         projects = (LinkedList<Projectile>) enemyProjectiles.clone();
         for (Projectile el : projects) {
-            el.update(player);
+            el.update();
         }
+    }
+    
+    public void clear(){
+        projectiles.clear();
+        enemyProjectiles.clear();
+        
     }
 }

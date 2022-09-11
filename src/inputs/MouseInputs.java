@@ -5,31 +5,37 @@
 package inputs;
 
 import gamestates.Gamestate;
-import static gamestates.Playing.pointerX;
-import static gamestates.Playing.pointerY;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import main.Game;
 import main.GamePanel;
 
 /**
- * Class Implements MouseListener, MouseMotionListener, calls correct gamestate listeners
+ * Class Implements MouseListener, MouseMotionListener, calls correct gamestate
+ * listeners
+ *
  * @author matti
  */
 public class MouseInputs implements MouseListener, MouseMotionListener {
 
-    /** GamePanel reference */
+    /**
+     * GamePanel reference
+     */
     private GamePanel gamePanel;
-    
+
     /**
      * constructor, require gamePaner reference
+     *
      * @param gamePanel gamePanel reference
      */
     public MouseInputs(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
     }
 
-    /** MouseClicked event implementation
+    /**
+     * MouseClicked event implementation
+     *
      * @param e MouseEvent
      */
     @Override
@@ -42,8 +48,10 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
 
         }
     }
-    
-    /** MousePressed event implementation
+
+    /**
+     * MousePressed event implementation
+     *
      * @param e MouseEvent
      */
     @Override
@@ -55,12 +63,17 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
             case MENU:
                 gamePanel.getGame().getMenu().mousePressed(e);
                 break;
+            case MULTIPLAYERMENU:
+                gamePanel.getGame().getMultiplayerMenu().mousePressed(e);
+                break;
             default:
 
         }
     }
-    
-    /** MouseReleased event implementation
+
+    /**
+     * MouseReleased event implementation
+     *
      * @param e MouseEvent
      */
     @Override
@@ -72,32 +85,41 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
             case MENU:
                 gamePanel.getGame().getMenu().mouseReleased(e);
                 break;
+            case MULTIPLAYERMENU:
+                gamePanel.getGame().getMultiplayerMenu().mouseReleased(e);
+                break;
             default:
 
         }
     }
 
-    /** MouseEntered event implementation
+    /**
+     * MouseEntered event implementation
+     *
      * @param e MouseEvent
      */
     @Override
     public void mouseEntered(MouseEvent e) {
     }
 
-    /** MouseExited event implementation
+    /**
+     * MouseExited event implementation
+     *
      * @param e MouseEvent
      */
     @Override
     public void mouseExited(MouseEvent e) {
     }
 
-    /** MouseDragged event implementation
+    /**
+     * MouseDragged event implementation
+     *
      * @param e MouseEvent
      */
     @Override
     public void mouseDragged(MouseEvent e) {
-        pointerX = e.getX();
-        pointerY = e.getY();
+        Game.playing.pointerX = e.getX();
+        Game.playing.pointerY = e.getY();
         switch (Gamestate.state) {
             case PLAYING:
                 gamePanel.getGame().getPlaying().mouseDragged(e);
@@ -106,13 +128,15 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
         }
     }
 
-    /** MouseMoved event implementation
+    /**
+     * MouseMoved event implementation
+     *
      * @param e MouseEvent
      */
     @Override
     public void mouseMoved(MouseEvent e) {
-        pointerX = e.getX();
-        pointerY = e.getY();
+        Game.playing.pointerX = e.getX();
+        Game.playing.pointerY = e.getY();
         //gamePanel.setRectPosition(e.getX(), e.getY());
         switch (Gamestate.state) {
             case PLAYING:
@@ -121,9 +145,11 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
             case MENU:
                 gamePanel.getGame().getMenu().mouseMoved(e);
                 break;
+            case MULTIPLAYERMENU:
+                gamePanel.getGame().getMultiplayerMenu().mouseMoved(e);
+                break;
             default:
 
         }
     }
-
 }

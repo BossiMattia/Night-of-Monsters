@@ -44,7 +44,7 @@ public class AudioPlayer {
       try {
         Clip clip = AudioSystem.getClip();
         AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-        AudioPlayer.class.getResourceAsStream("/audio/" + clipFile));
+        AudioPlayer.class.getResource("/audio/" + clipFile));
         clip.open(inputStream);
         setVolume(clip, volume);
         clip.start(); 
@@ -61,7 +61,7 @@ public class AudioPlayer {
        try {
         music = AudioSystem.getClip();
         AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-        AudioPlayer.class.getResourceAsStream("/audio/" + musicFile));
+        AudioPlayer.class.getResource("/audio/" + musicFile));
         music.open(inputStream);
         setVolume(music, volume);
         music.loop(Clip.LOOP_CONTINUOUSLY);

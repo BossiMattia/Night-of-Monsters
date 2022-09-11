@@ -5,15 +5,11 @@
 package levels;
 
 import entities.Enemy;
+import entities.EnemyManager;
 import entities.Projectile;
-import gamestates.Playing;
-import static gamestates.Playing.enemies;
-import static gamestates.Playing.flyingAmmos;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.util.LinkedList;
 import main.Game;
 import utils.Constants;
@@ -24,10 +20,9 @@ import static utils.LoadSave.LEVELS_NUMBER;
  * Level manager class, load level tiles, enemies, and background
  * @author matti
  */
+
 public class LevelManager {
  
-    /** game reference */
-    private Game game;
     /** level data as image - rgb decoding */
     private BufferedImage[] levelSprite; 
     /** debug only variables, list of collision checked tiles */
@@ -38,12 +33,10 @@ public class LevelManager {
 
     /**
      * Constructor, needs game reference
-     * @param game 
      */
-    public LevelManager(Game game) {
-        this.game = game;
+    public LevelManager() {
         importOutsideSprites();
-        loadedLevel = LoadSave.getLevel(Playing.getCurrentLevel(), game.getPlaying());
+        loadedLevel = LoadSave.getLevel(Game.playing.getCurrentLevel(), Game.getPlaying());
     }
     
     /**
@@ -52,7 +45,8 @@ public class LevelManager {
      * @throws NullPointerException if level does not exist
      */
     public void loadLevel(int levelN){
-        loadedLevel = LoadSave.getLevel(levelN, game.getPlaying());
+        loadedLevel = LoadSave.getLevel(levelN, Game.getPlaying());
+        loadedLevel.reload();
     }
     
     /** update, redirect update to loadedLevel */
@@ -69,12 +63,12 @@ public class LevelManager {
     */
      public void drawWorld(Graphics g, float offsetX, float offsetY){
         
-         drawBackground(g, offsetX, offsetY);
-        if(Playing.getCurrentLevel()+1 < LEVELS_NUMBER){
+        drawBackground(g, offsetX, offsetY);
+        
+        if(Game.playing.newLevelPermitted && Game.playing.getCurrentLevel()+1 < LEVELS_NUMBER){
             g.setColor(new Color(255, 160, 0, 128));
             g.fillRect((int)((loadedLevel.getWidthInTiles()-4)*Game.TILES_SIZE+offsetX), (int)(0+offsetY),(int)(4*Game.TILES_SIZE), (int) Game.GAME_HEIGHT);
         }
-        
         for (int j = 0; j < loadedLevel.getLvlData().length; j++)
             for (int i = 0; i < loadedLevel.getLvlData()[j].length; i++) {
                 int index = loadedLevel.getTilesIndex(i, j);
@@ -116,7 +110,7 @@ public class LevelManager {
      * @param offsetY vertical offset of screen
      */
     public void drawEnemies(Graphics g, float offsetX, float offsetY){
-        var nemic = (LinkedList<Enemy>)enemies.getEnemies().clone();
+        var nemic = (LinkedList<Enemy>)Game.playing.enemies.getEnemies().clone();
          for(Enemy en : nemic){
              en.render(g, offsetX, offsetY);
          }
@@ -129,11 +123,11 @@ public class LevelManager {
      * @param offsetY vertical offset of screen
      */
     public void drawProjs(Graphics g, float offsetX, float offsetY){
-       var muniz = (LinkedList<Projectile>)flyingAmmos.getProjectiles().clone();
+       var muniz = (LinkedList<Projectile>)Game.playing.flyingAmmos.getProjectiles().clone();
         muniz.forEach((el)->{
             el.render(g,  offsetX, offsetY);
         });
-        muniz = (LinkedList<Projectile>)flyingAmmos.getEnemyProjectiles().clone();
+        muniz = (LinkedList<Projectile>)Game.playing.flyingAmmos.getEnemyProjectiles().clone();
         muniz.forEach((el)->{
             el.render(g,  offsetX, offsetY);
         });
@@ -160,5 +154,13 @@ public class LevelManager {
         return loadedLevel;
     }
     
+    public void loadLevelWIthData(int[][] data, EnemyManager em){
+        loadedLevel = LoadSave.createCustomLevel(data, Game.playing, em);
+        loadedLevel.reload();
+    }
+    
+    public void reloadLevel() {
+        loadedLevel.reload();
+    }
     
 }

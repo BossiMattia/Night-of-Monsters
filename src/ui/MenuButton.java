@@ -3,6 +3,7 @@ package ui;
 import gamestates.Gamestate;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import utils.AudioPlayer;
 import utils.LoadSave;
@@ -13,7 +14,7 @@ import static utils.Constants.UI.Buttons.*;
  *
  * @author m1ncio
  */
-public class MenuButton {
+public class MenuButton implements onClick{
 
     /**
      * Buttons position and indexes for textures
@@ -44,6 +45,8 @@ public class MenuButton {
      * Hitbox of the buttons
      */
     private Rectangle bounds;
+    
+    
 
     /**
      * Default constructor
@@ -53,7 +56,7 @@ public class MenuButton {
      * @param rowIndex
      * @param state
      */
-    public MenuButton(int xPos, int yPos, int rowIndex, Gamestate state) {
+    public MenuButton(int xPos, int yPos, int rowIndex, Gamestate state){
         this.xPos = xPos;
         this.yPos = yPos;
         this.rowIndex = rowIndex;
@@ -129,7 +132,6 @@ public class MenuButton {
      */
     public void setMousePressed(Boolean mousePressed) {
         this.mousePressed = mousePressed;
-
     }
 
     /**
@@ -142,7 +144,8 @@ public class MenuButton {
     /**
      * Set the game state
      */
-    public void applyGamestate() {
+    public void clickEvent(MouseEvent e) {
+        if(!onClick(e))return;
         Gamestate.state = state;
         AudioPlayer.playEffect(AudioPlayer.Effects.CLICK);
     }
@@ -173,4 +176,10 @@ public class MenuButton {
         return state;
     }
 
+    @Override
+    public boolean onClick(MouseEvent e) {
+        return true;
+    }
+
+    
 }

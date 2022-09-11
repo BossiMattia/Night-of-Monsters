@@ -2,6 +2,8 @@ package ui;
 
 import gamestates.Gamestate;
 import gamestates.Playing;
+import gamestates.PlayingMultiplayerClient;
+import gamestates.PlayingMultiplayerServer;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -125,14 +127,21 @@ public class DeathOverlay {
         boolean startMusic = false;
         if (isIn(e, menuB)) {
             if (menuB.isMousePressed()) {
+                if(playing instanceof PlayingMultiplayerServer plCast){
+                    plCast.stopServer();
+                }
+                if(playing instanceof PlayingMultiplayerClient plCast){
+                    plCast.disconnect();
+                }
                 Gamestate.state = Gamestate.MENU;
-                playing.unpauseGame();
+                discord.DiscordActivityManager.setMenuActivity();
+                
                 startMusic = true;
             }
         } else if (isIn(e, replayB)) {
             if (replayB.isMousePressed()) {
-                Playing.reloadLevel();
-                playing.unpauseGame();
+                Game.playing.reloadLevel();
+                //playing.unpauseGame();
                 System.out.println("replay lvl!");
                 startMusic = true;
             }

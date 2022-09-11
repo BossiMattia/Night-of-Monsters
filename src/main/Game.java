@@ -2,10 +2,12 @@ package main;
 
 import gamestates.Gamestate;
 import gamestates.Menu;
+import gamestates.MultiplayerMenu;
 import gamestates.Playing;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import utils.Constants;
 
@@ -21,7 +23,7 @@ public class Game implements Runnable {
     /** game thread, updater */
     private Thread gameThread;
     /** Frame updates per second */
-    private static final int FPS_SET = 120;
+    public static final int FPS_SET = Math.max(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getRefreshRate(), 60);
     /** entities updates per second */
     public static final int UPS_SET = 200;
 
@@ -29,9 +31,11 @@ public class Game implements Runnable {
     public static boolean manualFrameAdvancing;
     
     /** Playing object */
-    private Playing playing;
+    public static Playing playing;
     /** Menu object */
     private Menu menu;
+    /**Multiplayer object*/
+    private MultiplayerMenu multiplayermenu;
     
     /** Tiles size at scale 1 */
     public final static int TILES_DEFAULT_SIZE = 32;
@@ -74,7 +78,8 @@ public class Game implements Runnable {
     }
     
     
-    /** change game scale, resize panel and recalculate sizes */
+    /** change game scale, resize panel and recalculate sizes
+     * @param scale new scale value*/
     public void changeScale(float scale){
         SCALE = scale;
         TILES_SIZE = TILES_DEFAULT_SIZE * SCALE;
@@ -91,9 +96,14 @@ public class Game implements Runnable {
     
     /** initialises classes */
     private void initClasses() {
-        menu=new Menu(this);
-        playing=new Playing(this);
+        menu=new Menu();
+        multiplayermenu=new MultiplayerMenu();
+        initPlaying(new Playing());
+        
+        /*
+        playing=new PlayingMultiplayerServer(this);
         playing.initLevelManager();
+        */
     }
 
     /** Generate a new thread, that will execute the run() function, then starts it */
@@ -113,7 +123,9 @@ public class Game implements Runnable {
             case MENU:
                 menu.update();
                 break;
-            case OPTIONS:
+            case MULTIPLAYERMENU:
+                multiplayermenu.update();
+                break;
             case QUIT:
             default:
                 System.exit(0);
@@ -136,6 +148,9 @@ public class Game implements Runnable {
                 break;
             case MENU:
                 menu.draw(g);
+                break;
+            case MULTIPLAYERMENU:
+                multiplayermenu.draw(g);
                 break;
             default:
                 break;
@@ -169,7 +184,7 @@ public class Game implements Runnable {
                     deltaU--;
                 }
                 if (deltaF >= 1) {
-                    gamePanel.repaint();
+                    gamePanel.repaint(0);
                     frames++;
                     deltaF--;
                 }
@@ -194,21 +209,42 @@ public class Game implements Runnable {
         }
     }
 
-    /** get menu reference */
+    /** get menu reference
+     @return menu reference */
     public Menu getMenu() {
         return menu;
     }
 
-    /** get playing reference */
-    public Playing getPlaying() {
+    /** get playing reference
+     * @return playing reference */
+    public static Playing getPlaying() {
         return playing;
     }
     
+    /** get multiplayer menu reference
+     * @return */
+    public MultiplayerMenu getMultiplayerMenu(){
+        return multiplayermenu;
+    }
+
     /** debug use only, updates and paint the update instantly */
-    public void newFrame(){
+    public void newFrame() {
         update();
         gamePanel.repaint();
     }
+
+    public static void initPlaying(Playing playing) {
+        Game.playing = playing;
+        Game.playing.initLevelManager();
+        Game.playing.afterCreationInit();
+    }
+
+    /*public void initPlaying(Playing playing, LevelManager lm) {
+        Game.playing = playing;
+        Game.playing.levelManager = lm;
+    }*/
+    
+    
     
     
 }

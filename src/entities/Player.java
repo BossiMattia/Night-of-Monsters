@@ -4,16 +4,19 @@
  */
 package entities;
 
-import gamestates.Playing;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import static utils.Constants.PlayerConstants.*;
 import utils.LoadSave;
 import main.Game;
+import org.json.JSONObject;
 import utils.AudioPlayer;
 import utils.Constants;
 import static utils.HelpMethods.*;
+import utils.Utils;
 
 /**
  * Player class, controlled via keyboard
@@ -24,6 +27,8 @@ public class Player extends Entity {
     /** sprite atlas pixels */
     final int spriteX = 64, spriteY = 40;
 
+    /** palyer username */
+    private String username;
     /** animations sprites */
     private BufferedImage[][] animations;
     /** ticks to change animations */
@@ -70,15 +75,38 @@ public class Player extends Entity {
         LoadAnimations();
         initHitbox(x, y, (int) (20f), (int) (27f));
     }
+    
+    public Player(Point.Float position) {
+        this(position.x, position.y);
+    }
+    
+    private Player(float spawnX, float spawnY, boolean left, boolean right, boolean jump, Point.Float position, int lives, int invincibilityFrame, boolean dirLeft, boolean moving, boolean attacking){
+        this(spawnX,spawnY);
+        hitbox.x = position.x;
+        hitbox.y = position.y;
+        this.left = left;
+        this.right = right;
+        this.jump = jump; 
+        this.lives = lives;
+        this.invincibilityFrame = invincibilityFrame;
+        this.dirLeft = dirLeft;
+        this.moving = moving;
+        this.attacking = attacking;
+    }
+    
+    private Player(float spawnX, float spawnY, boolean left, boolean right, boolean jump, Point.Float position, int lives, int invincibilityFrame, boolean dirLeft, boolean moving, boolean attacking, String username){
+        this(spawnX, spawnY, left, right, jump, position, lives, invincibilityFrame, dirLeft, moving, attacking);
+        this.username = username;
+    }
 
     /** Update tick */ 
     @Override
     public void update() {
         super.update();
+        updateBlockCollision();
         updatePos();
         updateAnimationTick();
         setAnimation();
-
         if (invincibilityFrame > 0) {
             invincibilityFrame--;
         } else {
@@ -88,7 +116,7 @@ public class Player extends Entity {
 
     /** Checks collision with enemies projectile */
     public void projCollision() {
-        var muniz = (LinkedList<Projectile>) Playing.flyingAmmos.getEnemyProjectiles().clone();
+        var muniz = (LinkedList<Projectile>) Game.playing.flyingAmmos.getEnemyProjectiles().clone();
         muniz.forEach(ammo -> {
             if (hitbox.intersects(ammo.hitbox)) {
                 hit();
@@ -104,8 +132,8 @@ public class Player extends Entity {
      * @param offsetY vertical offset of screen
     */
     public void render(Graphics g, float offsetX, float offsetY) {
-        if (!Playing.isPaused() && !Playing.isDeath() && !Playing.isEndGame()) {
-            dirLeft = Playing.pointerX < (hitbox.x + hitbox.width / 2) * Game.SCALE + offsetX;
+        if (!Game.playing.isPaused() && !Game.playing.isDeath() && !Game.playing.isEndGame() && this == Game.playing.player) {
+            dirLeft = Game.playing.pointerX < (hitbox.x + hitbox.width / 2) * Game.SCALE + offsetX;
         }
         if (dirLeft) {
             g.drawImage(animations[playerAction][aniIndex % animations[playerAction].length], (int) ((hitbox.x - xDrawOffset) * Game.SCALE + offsetX + spriteX * Game.SCALE), (int) ((hitbox.y - yDrawOffset) * Game.SCALE + offsetY), -(int) (spriteX * Game.SCALE), (int) (spriteY * Game.SCALE), null);
@@ -162,11 +190,11 @@ public class Player extends Entity {
         float xSpeed = 0, ySpeed = 0;
 
         if (left) {
-            dirLeft = true;
+            //dirLeft = true;
             xSpeed -= playerSpeed;
         }
         if (right) {
-            dirLeft = false;
+            //dirLeft = false;
             xSpeed += playerSpeed;
         }
 
@@ -215,6 +243,13 @@ public class Player extends Entity {
             hitbox.x += xSpeed;
         } else {
             hitbox.x = GetEntityXPosNextToWall(hitbox, xSpeed);
+        }
+    }
+    
+    private void updateBlockCollision() {
+        if(getStandingBlock(hitbox, lvlData)==3){
+            hit();
+            jump();
         }
     }
 
@@ -380,6 +415,8 @@ public class Player extends Entity {
 
     /** hit player event handler */
     public void hit() {
+        if(invincibilityFrame>0)return;
+        
         System.out.println("HIT");
         lives--;
         invincibilityFrame = 400;
@@ -406,8 +443,62 @@ public class Player extends Entity {
     public void die() {
         //Playing.enemies.removeAllEnemies();
         System.out.println("DEAD");
-        Playing.playerDeath();
+        Game.playing.playerDeath(this);
 
+    }
+
+    
+    
+    public Point.Float getSpawnPosition(){
+        return new Point.Float(x, y);
+    }
+    
+    public JSONObject toJSONObject(){
+        return new JSONObject()
+                .put("spawnX", x)
+                .put("spawnY", y)
+                .put("left", left)
+                .put("right",right)
+                .put("jump",jump)
+                .put("position", Utils.jsonMapper.pointToJSON(getPosition()))
+                .put("lives", lives)
+                .put("invincibilityFrame", invincibilityFrame)
+                .put("dirLeft", dirLeft)
+                .put("moving", moving)
+                .put("attacking", attacking)
+                .put("airSpeed", airSpeed)
+                //.put("username", username)
+                ;
+        
+    }
+    
+    public void updateWithJson(JSONObject obj){
+        x = obj.getFloat("spawnX");
+        y = obj.getFloat("spawnY");
+        left = obj.getBoolean("left");
+        right = obj.getBoolean("right");
+        jump = obj.getBoolean("jump");
+        setPosition(Utils.jsonMapper.JSONTOPoint(obj.getJSONArray("position")));
+        lives = obj.getInt("lives");
+        invincibilityFrame = obj.getInt("invincibilityFrame");
+        dirLeft = obj.getBoolean("dirLeft");
+        moving = obj.getBoolean("moving");
+        attacking = obj.getBoolean("attacking");
+        airSpeed = obj.getFloat("airSpeed");
+        //username = obj.getString("username");
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public Player setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public Point.Float getCenterPoint() {
+        return new Point2D.Float(hitbox.x+hitbox.width/2, hitbox.y+hitbox.height/2);
     }
 
 }

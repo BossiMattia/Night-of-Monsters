@@ -6,6 +6,8 @@ package utils;
 
 
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static main.Game.manualFrameAdvancing;
 
 /**
@@ -22,6 +24,8 @@ public class Updater {
     /** updater thread */
     Thread upd;
 
+    boolean asyncCalls = false;
+    
     /** constructor, define function and tps
      * @param funct function to be called at tick
      * @param tps functions calls per second
@@ -44,6 +48,10 @@ public class Updater {
             if(!manualFrameAdvancing) {
                 deltaT += (currentTime - previousTime) / timePerTick;
                 if (deltaT >= 1) {
+                    if(deltaT>3){
+                        //System.out.println(deltaT);
+                        deltaT=(int)deltaT;
+                    }
                     Tick();
                     ticks++;
                     deltaT--;
@@ -58,7 +66,17 @@ public class Updater {
     /** calls the function, stops execution on Exception */
     private void Tick(){
         try {
-            funct.call();
+            if(asyncCalls){
+                new Thread(()->{
+                    try {
+                        funct.call();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }).start();
+            }else{
+                funct.call();
+            }
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(Updater.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             running = false;
@@ -81,6 +99,11 @@ public class Updater {
         }
     }
     
+    public void startThreadAsync(){
+        asyncCalls = true;
+        startThread();
+    }
+    
     /** static wrapper to sleep in nanoseconds */
     private static void sleepNano(long nano){
         try {
@@ -94,4 +117,6 @@ public class Updater {
     public boolean isRunning() {
         return running;
     }
+    
+    
 }
